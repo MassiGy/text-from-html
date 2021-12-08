@@ -1,0 +1,70 @@
+#!/bin/bash
+
+
+
+
+# this script will take an html and erase all the tags to get the raw text
+# this script will take the first argument as the html file, and the second as the txt file
+
+
+
+if [[ "$1" != *.html || "$2" != *.txt  ]]; then 
+	echo "Error : missing arguments."
+	echo "Usage : text-from-html <file.html> <raw.txt>"
+	echo "Status: exiting with status 1"
+fi
+
+if [ ! -s "$1" ]; then
+	echo "Error : missing arguments."
+	echo "Hint  : check whatever your html file is empty."
+	echo "Status: exiting with status 2"
+fi
+
+if [ -s "$2" ]; then
+	echo "Warning: txt file not empty."
+	echo "Hint   : Pass another file, otherwise you will lose data."
+	echo "Do you want to continue? y/n"
+	read answer
+		if [ "$answer" = 'n' ]; then
+			echo "Status : Exiting with status 3."
+			exit;
+		fi
+fi
+
+
+
+# steps
+# we begin with an html file containing this
+# <tag> text that we are looking for </tag>
+
+# find the character '<' in the html file and replace it with a new line and the char
+# we add the character itself to save the format of the openning html tag
+# we take the output of the pervious step and append them to the txt file
+# we will end up with a txt file containing this 
+# <tag>
+# text that we are looking for </tag>
+# (empty line)
+#
+# then we search for the charcter '>' through the txt file, and we replace it with '>' + new line
+# we do this as well to save the closing html tags
+# then we erase the txt file content, and append the outupt of the last step
+# so now we end up with a txt file that contains html in this form
+# <tag>
+# text that we are looking for
+# </tag>
+# (empty line)
+#
+# now all it is remaining is to remove the line that containes the tags, 
+# which are basiclly the lines that contains the characters '<' or '>'
+# and then we erase the txt file content and append to it the resault of this last command
+# so now we end up with a txt file that contains this 
+# (empty line)
+# text that we are looking for
+# (empty line)
+# (empty line)
+#
+# OPTIONAL: as you can see the txt file will contain a bunch of empty lines
+# we can add another command to remove them
+
+sed 's/[<]/\n</g' "$1" | sed 's/[>]/>\n/g' | sed '/[<>]/d' | sed '/^$/d' > raw.txt
+
